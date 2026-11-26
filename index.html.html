@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog Pribadi Saya</title>
+  <style>
+    :root {
+      --primary: #6c5ce7;
+      --accent: #00b894;
+      --danger: #d63031;
+      --bg: #fafafa;
+      --surface: #ffffff;
+      --text: #2d3436;
+      --muted: #636e72;
+      --border: #e4e6ea;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: #fff;
+      padding: 3rem 1.5rem 2.5rem;
+      text-align: center;
+    }
+    header h1 { font-size: 2rem; margin-bottom: 0.4rem; }
+    header p { opacity: 0.9; }
+
+    nav {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0.9rem;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    nav button {
+      background: none;
+      border: none;
+      font: inherit;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+    nav button:hover, nav button.active {
+      color: var(--primary);
+      background: #f1efff;
+    }
+
+    main {
+      max-width: 760px;
+      margin: 2.5rem auto;
+      padding: 0 1.25rem;
+    }
+
+    .section { display: none; animation: fade 0.4s ease; }
+    .section.active { display: block; }
+
+    @keyframes fade {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--primary);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(108, 92, 231, 0.12);
+    }
+    .card:nth-child(even) { border-left-color: var(--accent); }
+
+    .meta { font-size: 0.85rem; color: var(--muted); margin-bottom: 0.4rem; }
+
+    .tag {
+      display: inline-block;
+      background: #e6fff8;
+      color: #00896d;
+      font-size: 0.75rem;
+      padding: 0.15rem 0.6rem;
+      border-radius: 999px;
+      margin-right: 0.3rem;
+    }
+
+    .card h2 { font-size: 1.3rem; margin: 0.4rem 0 0.6rem; }
+
+    .cover {
+      display: block;
+      width: 100%;
+      max-height: 320px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin: 0.8rem 0;
+    }
+
+    .read-more {
+      background: none;
+      border: none;
+      color: var(--primary);
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .full-post { display: none; margin-top: 1rem; white-space: pre-line; }
+    .full-post.open { display: block; }
+
+    .delete-btn {
+      background: none;
+      border: none;
+      color: var(--danger);
+      font: inherit;
+      font-size: 0.85rem;
+      cursor: pointer;
+      padding: 0;
+      margin-top: 1rem;
+      display: none;
+    }
+    .admin .delete-btn { display: block; }
+
+    .about-photo {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      margin: 0 auto 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 2.5rem;
+      font-weight: bold;
+    }
+    .about-text { text-align: center; }
+
+    form { display: grid; gap: 1rem; margin-top: 1rem; }
+
+    input, textarea {
+      font: inherit;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      width: 100%;
+      background: var(--surface);
+    }
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.15);
+    }
+    textarea { min-height: 200px; resize: vertical; }
+
+    .file-label {
+      display: grid;
+      gap: 0.4rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    .file-label input { border: none; padding: 0.3rem 0; background: none; }
+
+    .btn {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      justify-self: start;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: var(--accent); }
+    .btn-outline {
+      background: none;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+    }
+    .btn-outline:hover { background: #f1efff; }
+
+    .admin-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    .notice {
+      margin-top: 1rem;
+      color: var(--accent);
+      font-weight: 600;
+      display: none;
+    }
+
+    .kosong { color: var(--muted); font-style: italic; margin-bottom: 1.5rem; }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+      padding: 2rem 1rem;
+      border-top: 1px solid var(--border);
+      margin-top: 2rem;
+    }
+
+    @media (max-width: 600px) {
+      header h1 { font-size: 1.6rem; }
+      nav { gap: 0.6rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Nama Anda</h1>
+    <p>Menulis tentang ide, pengalaman, dan hal yang saya pelajari</p>
+  </header>
+
+  <nav>
+    <button class="active" data-target="beranda">Beranda</button>
+    <button data-target="tulis">Tulis Baru</button>
+    <button data-target="tentang">Tentang</button>
+    <button data-target="kontak">Kontak</button>
+  </nav>
+
+  <main>
+
+    <!-- BERANDA -->
+    <section id="beranda" class="section active">
+      <div id="daftar-tulisan"></div>
+
+      <!-- Tulisan contoh, boleh dihapus dari kode -->
+      <article class="card">
+        <div class="meta">12 November 2026</div>
+        <span class="tag">Teknologi</span>
+        <h2>Memulai Kebiasaan Menulis Setiap Hari</h2>
+        <button class="read-more">Baca selengkapnya →</button>
+        <div class="full-post">Menulis setiap hari tidak harus panjang. Cukup catat satu hal yang Anda pelajari hari ini. Lama-kelamaan, catatan kecil itu menjadi kumpulan pengetahuan yang sangat berharga.</div>
+      </article>
+    </section>
+
+    <!-- TULIS BARU (hanya admin) -->
+    <section id="tulis" class="section">
+      <div class="card">
+        <div class="admin-bar">
+          <span id="status-login">Memeriksa status login...</span>
+          <div>
+            <button class="btn" id="btn-login" style="display:none">Login dengan Google</button>
+            <button class="btn btn-outline" id="btn-logout" style="display:none">Keluar</button>
+          </div>
+        </div>
+
+        <div id="form-wrap" style="display:none">
+          <h2 style="margin-top:1.2rem">Tulis Tulisan Baru</h2>
+          <form id="postForm">
+            <input type="text" id="judul" placeholder="Judul tulisan" required>
+            <input type="text" id="kategori" placeholder="Kategori (misal: Teknologi, Cerita)">
+
+            <label class="file-label">
+              Atau ambil isi dari file .txt / .md (opsional)
+              <input type="file" id="fileTeks" accept=".txt,.md">
+            </label>
+
+            <textarea id="isi" placeholder="Tulis isi tulisan Anda di sini..." required></textarea>
+
+            <label class="file-label">
+              Gambar sampul (opsional, maks. 500 KB)
+              <input type="file" id="gambar" accept="image/*">
+            </label>
+
+            <button type="submit" class="btn" id="btn-terbit">Terbitkan</button>
+          </form>
+          <p class="notice" id="notice">Tulisan berhasil diterbitkan!</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TENTANG -->
+    <section id="tentang" class="section">
+      <div class="card">
+        <div class="about-photo">N</div>
+        <div class="about-text">
+          <h2>Halo, saya Nama Anda</h2>
+          <p>Saya seorang penulis dan pembelajar yang senang berbagi cerita tentang teknologi, kreativitas, dan kehidupan sehari-hari.</p>
+          <p>Ubah bagian ini dengan latar belakang, minat, dan pengalaman Anda sendiri.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- KONTAK -->
+    <section id="kontak" class="section">
+      <div class="card">
+        <h2>Hubungi Saya</h2>
+        <p>Silakan tinggalkan pesan, dan saya akan membalasnya secepat mungkin.</p>
+        <form id="contactForm">
+          <input type="text" placeholder="Nama Anda" required>
+          <input type="email" placeholder="Email Anda" required>
+          <textarea placeholder="Tulis pesan Anda..." required></textarea>
+          <button type="submit" class="btn">Kirim Pesan</button>
+        </form>
+        <p class="notice" id="noticeKontak">Terima kasih! Pesan Anda sudah tercatat.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    &copy; <span id="year"></span> Nama Anda. Dibuat dengan HTML, CSS, dan JavaScript.
+  </footer>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getFirestore, collection, addDoc, deleteDoc, doc, query, orderBy,
+      onSnapshot, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // ===== KONFIGURASI: ganti dengan milik Anda dari Firebase Console =====
+   const firebaseConfig = {
+      apiKey: "AIzaSyBkVgXog_l5wdpvOjW3BP3cisgsBvHZjgQ",
+      authDomain: "baben-jaya.firebaseapp.com",
+      projectId: "baben-jaya",
+      storageBucket: "baben-jaya.firebasestorage.app",
+      messagingSenderId: "924419253757",
+      appId: "1:924419253757:web:44c43ca6d0c6b335fc2594",
+      measurementId: "G-V5HK5N2NGV"
+};
+
+    // Email Google Anda, satu-satunya akun yang boleh menulis
+    const EMAIL_ADMIN = "babenjaya07@gmail.com";
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
+
+    let adminAktif = false;
+    let daftarTulisan = [];
+
+    // ===== Navigasi =====
+    const navButtons = document.querySelectorAll('nav button');
+    const sections = document.querySelectorAll('.section');
+
+    function tampilkanHalaman(target) {
+      navButtons.forEach(b => b.classList.toggle('active', b.dataset.target === target));
+      sections.forEach(s => s.classList.toggle('active', s.id === target));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    navButtons.forEach(btn => btn.addEventListener('click', () => tampilkanHalaman(btn.dataset.target)));
+
+    // Tombol "Baca selengkapnya" untuk contoh tulisan
+    document.querySelectorAll('#beranda .read-more').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const terbuka = btn.nextElementSibling.classList.toggle('open');
+        btn.textContent = terbuka ? 'Tutup ↑' : 'Baca selengkapnya →';
+      });
+    });
+
+    // ===== Login dan status admin =====
+    const btnLogin = document.getElementById('btn-login');
+    const btnLogout = document.getElementById('btn-logout');
+    const statusLogin = document.getElementById('status-login');
+    const formWrap = document.getElementById('form-wrap');
+
+    btnLogin.addEventListener('click', () => {
+      signInWithPopup(auth, provider).catch(err => alert('Login gagal: ' + err.message));
+    });
+
+    btnLogout.addEventListener('click', () => signOut(auth));
+
+    onAuthStateChanged(auth, user => {
+      adminAktif = !!user && user.email === EMAIL_ADMIN && user.emailVerified;
+
+      document.body.classList.toggle('admin', adminAktif);
+
+      if (!user) {
+        statusLogin.textContent = 'Login dengan akun Google untuk menulis tulisan baru.';
+        btnLogin.style.display = 'inline-block';
+        btnLogout.style.display = 'none';
+        formWrap.style.display = 'none';
+      } else if (!adminAktif) {
+        statusLogin.textContent = `Akun ${user.email} tidak memiliki akses menulis.`;
+        btnLogin.style.display = 'none';
+        btnLogout.style.display = 'inline-block';
+        formWrap.style.display = 'none';
+      } else {
+        statusLogin.textContent = `Masuk sebagai ${user.email}`;
+        btnLogin.style.display = 'none';
+        btnLogout.style.display = 'inline-block';
+        formWrap.style.display = 'block';
+      }
+
+      tampilkanTulisan();
+    });
+
+    // ===== Membaca tulisan dari Firestore (semua pengunjung bisa membaca) =====
+    const kueriTulisan = query(collection(db, 'tulisan'), orderBy('createdAt', 'desc'));
+    onSnapshot(kueriTulisan, snapshot => {
+      daftarTulisan = [];
+      snapshot.forEach(d => daftarTulisan.push({ id: d.id, ...d.data() }));
+      tampilkanTulisan();
+    }, err => {
+      console.error('Gagal membaca tulisan:', err);
+    });
+
+    function buatKartu(tulisan) {
+      const artikel = document.createElement('article');
+      artikel.className = 'card';
+
+      const meta = document.createElement('div');
+      meta.className = 'meta';
+      meta.textContent = tulisan.tanggal || '';
+      artikel.appendChild(meta);
+
+      if (tulisan.kategori) {
+        const tag = document.createElement('span');
+        tag.className = 'tag';
+        tag.textContent = tulisan.kategori;
+        artikel.appendChild(tag);
+      }
+
+      const judul = document.createElement('h2');
+      judul.textContent = tulisan.judul;
+      artikel.appendChild(judul);
+
+      if (tulisan.gambar) {
+        const gambar = document.createElement('img');
+        gambar.className = 'cover';
+        gambar.src = tulisan.gambar;
+        gambar.alt = tulisan.judul;
+        artikel.appendChild(gambar);
+      }
+
+      const tombolBaca = document.createElement('button');
+      tombolBaca.className = 'read-more';
+      tombolBaca.textContent = 'Baca selengkapnya →';
+
+      const isi = document.createElement('div');
+      isi.className = 'full-post';
+      isi.textContent = tulisan.isi;
+
+      tombolBaca.addEventListener('click', () => {
+        const terbuka = isi.classList.toggle('open');
+        tombolBaca.textContent = terbuka ? 'Tutup ↑' : 'Baca selengkapnya →';
+      });
+
+      const tombolHapus = document.createElement('button');
+      tombolHapus.className = 'delete-btn';
+      tombolHapus.textContent = 'Hapus tulisan ini';
+      tombolHapus.addEventListener('click', () => hapusTulisan(tulisan.id));
+
+      artikel.append(tombolBaca, isi, tombolHapus);
+      return artikel;
+    }
+
+    function tampilkanTulisan() {
+      const wadah = document.getElementById('daftar-tulisan');
+      wadah.innerHTML = '';
+      daftarTulisan.forEach(t => wadah.appendChild(buatKartu(t)));
+    }
+
+    async function hapusTulisan(id) {
+      if (!adminAktif) return;
+      if (!confirm('Hapus tulisan ini?')) return;
+      try {
+        await deleteDoc(doc(db, 'tulisan', id));
+      } catch (err) {
+        alert('Gagal menghapus: ' + err.message);
+      }
+    }
+
+    // ===== Mengisi teks dari file .txt / .md =====
+    document.getElementById('fileTeks').addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const pembaca = new FileReader();
+      pembaca.onload = ev => {
+        document.getElementById('isi').value = ev.target.result;
+        const judul = document.getElementById('judul');
+        if (!judul.value) judul.value = file.name.replace(/\.(txt|md)$/i, '');
+      };
+      pembaca.readAsText(file);
+    });
+
+    // ===== Membaca gambar sampul =====
+    function bacaGambar(file) {
+      return new Promise((resolve, reject) => {
+        if (!file) return resolve('');
+        if (file.size > 500 * 1024) return reject(new Error('terlalu besar'));
+        const pembaca = new FileReader();
+        pembaca.onload = () => resolve(pembaca.result);
+        pembaca.onerror = () => reject(pembaca.error);
+        pembaca.readAsDataURL(file);
+      });
+    }
+
+    // ===== Menerbitkan tulisan baru =====
+    document.getElementById('postForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      if (!adminAktif) return alert('Anda belum login sebagai admin.');
+
+      let gambar = '';
+      try {
+        gambar = await bacaGambar(document.getElementById('gambar').files[0]);
+      } catch (err) {
+        alert('Ukuran gambar maksimal 500 KB. Pilih gambar yang lebih kecil.');
+        return;
+      }
+
+      const tombolTerbit = document.getElementById('btn-terbit');
+      tombolTerbit.disabled = true;
+      tombolTerbit.textContent = 'Menerbitkan...';
+
+      try {
+        await addDoc(collection(db, 'tulisan'), {
+          judul: document.getElementById('judul').value.trim(),
+          kategori: document.getElementById('kategori').value.trim(),
+          isi: document.getElementById('isi').value.trim(),
+          gambar: gambar,
+          tanggal: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
+          createdAt: serverTimestamp()
+        });
+
+        e.target.reset();
+        const notice = document.getElementById('notice');
+        notice.style.display = 'block';
+        setTimeout(() => notice.style.display = 'none', 3000);
+        tampilkanHalaman('beranda');
+      } catch (err) {
+        alert('Gagal menerbitkan: ' + err.message);
+      } finally {
+        tombolTerbit.disabled = false;
+        tombolTerbit.textContent = 'Terbitkan';
+      }
+    });
+
+    // ===== Formulir kontak (simulasi) =====
+    document.getElementById('contactForm').addEventListener('submit', e => {
+      e.preventDefault();
+      document.getElementById('noticeKontak').style.display = 'block';
+      e.target.reset();
+    });
+
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+
+</body>
+</html>
